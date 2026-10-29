@@ -6,6 +6,16 @@ A free, local-first tool for turning original stories into illustrated interacti
 
 > The storyteller owns the imagination. FieldStoryForge provides the tools to bring it to life.
 
+## Rung 2: comic composer and manuscript workflow
+
+- **Multi-panel comic pages:** up to 8 illustrated panels per scene, with narration captions, speech bubbles, image descriptions, upload/reordering, and cinematic/grid/stack/split layouts. The reader and standalone offline HTML export both render these panels.
+- **Manuscript importer:** paste text or open a .txt/.md; Markdown headings and chapter headings become scenes, and plain manuscript sections become linear pages that you can turn into branches. Existing explicit `:: id | Title` and `? choice -> id` markup retains linked branches. An import preview and append-by-default prevent accidental overwrites.
+- **Visual story map:** draggable scene arrangement, click-to-connect canonical choice edges, and a text-based connection list for accessibility. All links are still checked by the existing graph validator.
+- **Undo/redo:** 40 steps per story during the current editor session, including page editing, imports and map changes. Use the Studio buttons for whole-story undo.
+- **Backward-compatible format:** older fieldstory/v1 books remain readable. `panels`, `layout`, and `mapPositions` are optional additions.
+
+No AI image generation, automatic understanding of arbitrary story branching, or live cross-product integration is claimed. Avoid large embedded images; browser localStorage has limited capacity. The `.fieldstory` and offline HTML exports are your portable backups.
+
 ## Rung 1 features
 
 - **Bookshelf:** create, edit, duplicate, import, delete, and read multiple stories.
@@ -38,8 +48,8 @@ Open the URL printed by Vite.
 
 1. Open The Whispering Door and make a few choices.
 2. Click **Edit story** to see how pages, choices, flags, and endings are authored.
-3. Create a new story or import a branching outline.
-4. Add art, or use the included placeholders.
+3. Create a new story or import a manuscript or explicit branching outline. Preview it and append to preserve existing scenes.
+4. Add comic panels and choose a layout, upload art, or use styled placeholders. Drag scenes and connect them in Story Map.
 5. Download **Save .fieldstory** to make an editable backup.
 6. Click **Publish HTML** to create a single portable offline comic to share without the studio.
 
