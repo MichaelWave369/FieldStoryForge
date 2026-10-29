@@ -73,3 +73,18 @@ New story field:
 - mapPositions: scene ID to {x, y} coordinates, bounded to 5-4800, used only by the editor visual graph.
 
 The manuscript importer recognizes Markdown headings and Chapter N headings; other plain prose becomes conservative linear pages. It does not infer meaningful alternate endings from arbitrary prose. Append mode remaps colliding IDs; Replace requires confirmation.
+
+## Rung 3 optional art-direction fields
+
+Backward-compatible additions to the existing fieldstory/v1 schema:
+
+- story.artStyle: {preset,custom,palette,mood,avoid,aspect}; preset is an allowed art style, aspect is one of 1:1, 3:4, 4:3, 16:9, 9:16.
+- story.locations: up to 50 {id,name,description,definingDetails,image} entries. Image follows the existing data URL image allowlist.
+- character.appearance, character.wardrobe, character.signature, character.continuityNotes: bounded plain text; existing name, description and image remain unchanged.
+- scene.artPlan and panel.artPlan: {characterIds,locationId,composition,lighting}. IDs are constrained to existing character and location references. Art plans do not affect branching or player progress.
+- scene.artMeta and panel.artMeta: {source,prompt,negativePrompt,approvedAt} recorded when a candidate image is explicitly approved. Source is uploaded, external-tool, hand-drawn, or other. Approval timestamp is a string, and not a cryptographic attestation.
+
+Rung 3 adds a separate format fieldstory-art-brief/v1 for exported *text-only* shot plans. It includes user-authored character and place descriptions, but deliberately excludes image blobs and credentials. Do not share a prompt pack that contains private descriptions. No arbitrary code or prompts are executed on import.
+
+An image is staged in ephemeral component state until an author chooses Approve artwork. Only then is it saved to the canonical scene/panel image and .fieldstory package. Direct uploads in the original editor remain manual author actions, and retain their prior behavior.
+

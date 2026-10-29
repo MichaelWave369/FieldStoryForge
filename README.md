@@ -6,6 +6,18 @@ A free, local-first tool for turning original stories into illustrated interacti
 
 > The storyteller owns the imagination. FieldStoryForge provides the tools to bring it to life.
 
+## Rung 3: Art Director and character continuity
+
+- **Character visual bible:** specify appearance, signature features, wardrobe, and rules that should stay the same throughout the story. Portrait references remain inside the editable book; generated prompt exports contain text descriptions, not image files.
+- **Location bible:** reusable settings with fixed architectural/environmental anchors.
+- **Story-wide style:** art preset or custom style, palette, mood, aspect ratio and things to avoid.
+- **Shot planner:** assign visible characters and location to a scene or panel; add camera composition and lighting. Preview deterministic positive/negative illustration prompts.
+- **Prompt pack:** download a versioned, plain JSON batch of reusable shot prompts for any image-generation tool. **No model or API is called from the browser.** Prompt exports contain author-written character and location descriptions; review them before sharing.
+- **Candidate review:** upload an image from an outside generator or your own drawing, review it locally, add required alt text, then explicitly approve. Rejected candidates never enter the story. Accepted art retains its source, prompt, and approval timestamp.
+- Rung 1 and Rung 2 stories remain supported. Story data and images stay in the local browser unless deliberately exported; exported HTML remains a readable offline book without the editor.
+
+**Not implemented:** direct ComfyUI/cloud model execution, automatic visual identity recognition, revision history across sessions, or automated continuity verification of pixels. These remain future opt-in integrations. Prompts improve consistency but cannot guarantee it.
+
 ## Rung 2: comic composer and manuscript workflow
 
 - **Multi-panel comic pages:** up to 8 illustrated panels per scene, with narration captions, speech bubbles, image descriptions, upload/reordering, and cinematic/grid/stack/split layouts. The reader and standalone offline HTML export both render these panels.

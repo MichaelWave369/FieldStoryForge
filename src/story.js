@@ -1,4 +1,5 @@
 import { PANEL_LAYOUTS, normalizedPanels, normalizedMapPositions } from './rung2.js';
+import { blankStyle, normalizeStyle, normalizePlan, normalizeArtMeta, normalizeCharacterExtras, normalizeLocations } from './artDirector.js';
 export const FORMAT = 'fieldstory/v1';
 export const MAX_FILE_CHARS = 8_000_000;
 const cleanText = (value, max = 10000) => String(value ?? '').slice(0, max);
@@ -10,18 +11,21 @@ export function newId(prefix = 'scene') {
   return prefix + '-' + Math.random().toString(36).slice(2, 12);
 }
 export function scene(id = newId()) {
-  return { id, title: 'Untitled scene', narration: '', dialogue: '', image: '', imageAlt: '', artworkNote: '', ending: false, choices: [], layout: 'cinematic', panels: [] };
+  return { id, title: 'Untitled scene', narration: '', dialogue: '', image: '', imageAlt: '', artworkNote: '', ending: false, choices: [], layout: 'cinematic', panels: [], artPlan: null, artMeta: null };
 }
 export function createStory() {
   const first = scene('opening');
   first.title = 'Once upon a time';
   first.narration = 'Every adventure begins somewhere.';
-  return { format: FORMAT, id: newId('story'), title: 'Untitled Living Comic', author: '', description: '', genre: 'Fantasy', start: first.id, scenes: [first], characters: [], mapPositions: {}, updatedAt: new Date().toISOString() };
+  return { format: FORMAT, id: newId('story'), title: 'Untitled Living Comic', author: '', description: '', genre: 'Fantasy', start: first.id, scenes: [first], characters: [], locations: [], artStyle: blankStyle(), mapPositions: {}, updatedAt: new Date().toISOString() };
 }
 export function normalizeStory(source) {
   if (!source || typeof source !== 'object' || Array.isArray(source) || source.format !== FORMAT) throw new Error('Not a supported .fieldstory/v1 file.');
   if (!Array.isArray(source.scenes) || source.scenes.length === 0 || source.scenes.length > 500) throw new Error('Stories must contain 1 to 500 scenes.');
   let totalChoices = 0;
+  const locations = normalizeLocations(source.locations);
+  const castIds = Array.isArray(source.characters) ? source.characters.slice(0,50).map(c=>c?.id).filter(safeId) : [];
+  const locationIds = locations.map(l=>l.id);
   const scenes = source.scenes.map((item, index) => {
     if (!item || !safeId(item.id)) throw new Error('Invalid scene ID at position ' + (index + 1) + '.');
     if (!Array.isArray(item.choices) || item.choices.length > 12) throw new Error('Each scene may have up to 12 choices.');
@@ -30,7 +34,9 @@ export function normalizeStory(source) {
       id: item.id, title: cleanText(item.title, 120), narration: cleanText(item.narration, 10000),
       dialogue: cleanText(item.dialogue, 3000), image: safeImage(item.image), imageAlt: cleanText(item.imageAlt, 220),
       artworkNote: cleanText(item.artworkNote, 500), ending: item.ending === true,
-      layout: PANEL_LAYOUTS.includes(item.layout) ? item.layout : 'cinematic', panels: normalizedPanels(item.panels),
+      layout: PANEL_LAYOUTS.includes(item.layout) ? item.layout : 'cinematic',
+      artPlan: normalizePlan(item.artPlan, castIds, locationIds), artMeta: normalizeArtMeta(item.artMeta),
+      panels: normalizedPanels(item.panels).map((p,j)=>({...p, artPlan: normalizePlan(item.panels[j]?.artPlan,castIds,locationIds), artMeta: normalizeArtMeta(item.panels[j]?.artMeta)})),
       choices: item.choices.map(c => ({
         id: safeId(c.id) ? c.id : newId('choice'),
         text: cleanText(c.text, 160), to: cleanText(c.to, 80),
@@ -43,13 +49,13 @@ export function normalizeStory(source) {
   if (!safeId(source.start)) throw new Error('Invalid starting scene.');
   const characters = Array.isArray(source.characters) ? source.characters.slice(0, 50).map(c => ({
     id: safeId(c?.id) ? c.id : newId('character'), name: cleanText(c?.name, 80),
-    description: cleanText(c?.description, 1000), image: safeImage(c?.image)
+    description: cleanText(c?.description, 1000), image: safeImage(c?.image), ...normalizeCharacterExtras(c)
   })) : [];
   return {
     format: FORMAT, id: safeId(source.id) ? source.id : newId('story'),
     title: cleanText(source.title, 120) || 'Untitled Living Comic', author: cleanText(source.author, 120),
     description: cleanText(source.description, 1000), genre: cleanText(source.genre, 70),
-    start: source.start, scenes, characters, mapPositions: normalizedMapPositions(source.mapPositions, scenes.map(s=>s.id)), updatedAt: typeof source.updatedAt === 'string' ? cleanText(source.updatedAt, 40) : ''
+    start: source.start, scenes, characters, locations, artStyle: normalizeStyle(source.artStyle), mapPositions: normalizedMapPositions(source.mapPositions, scenes.map(s=>s.id)), updatedAt: typeof source.updatedAt === 'string' ? cleanText(source.updatedAt, 40) : ''
   };
 }
 export function validateStory(story) {
@@ -135,6 +141,7 @@ export function parseOutline(text) {
 export function demoStory() {
   const s = (id, title, narration, choices = [], ending = false, artworkNote = '') => ({
     id, title, narration, dialogue: '', image: '', imageAlt: '', artworkNote, ending,
+    artPlan: id==='attic' ? {characterIds:['mara'],locationId:'old-attic',composition:'Wide view down the attic toward a brass door',lighting:'Silver moonlight entering the circular window'} : null,
     choices: choices.map((c, i) => ({ id: id + '-choice-' + i, text: c[0], to: c[1],
       condition: c[2] ? { flag: c[2][0], equals: c[2][1] } : null,
       effect: c[3] ? { flag: c[3][0], value: c[3][1] } : null }))
@@ -142,7 +149,10 @@ export function demoStory() {
   return normalizeStory({
     format: FORMAT, id: 'whispering-door', title: 'The Whispering Door', author: 'FieldStoryForge',
     description: 'One locked attic door. Three endings. Your choices leave traces.',
-    genre: 'Gothic Fantasy', start: 'attic', characters: [{ id: 'mara', name: 'Mara', description: 'A curious archivist returning to her grandmother’s old house.' }],
+    genre: 'Gothic Fantasy', start: 'attic',
+    artStyle: {preset:'Painterly fantasy',palette:'Moonlit violet, tarnished copper, candlelit gold',mood:'Moody storybook watercolor with intricate ink details',avoid:'Modern billboards or neon signage',aspect:'3:4'},
+    characters: [{ id: 'mara', name: 'Mara', description: 'A curious archivist returning to her grandmother’s old house.', appearance:'Adult woman with wavy dark hair, dark eyebrows, and a thoughtful expression',wardrobe:'Indigo wool coat and a tan leather satchel',signature:'Small brass key pendant',continuityNotes:'Keep her dark wavy hair, indigo coat and key pendant consistent between scenes' }],
+    locations: [{id:'old-attic',name:'Grandmother’s attic',description:'An old attic above a rural house, heavy with dust and memories',definingDetails:'Exposed rafters, single circular window, a dark brass door framed by faded floral wallpaper'}],
     scenes: [
       s('attic', 'The Last Stair', 'The attic smells of rain and forgotten paper. At its far end stands a door no one remembers building. A voice whispers your name.', [['Open the door', 'threshold'], ['Search the attic first', 'trunk'], ['Call out to the voice', 'answer']], false, 'A dusty attic, lone brass door, moonlight through rafters.'),
       s('trunk', 'The Cedar Trunk', 'Inside a cedar trunk you find a silver key and a letter in your grandmother’s handwriting: “Not every door leads away.”', [['Take the key and approach the door', 'threshold', null, ['key', 'yes']], ['Leave the key untouched', 'answer']], false, 'Close-up of an antique silver key.'),
