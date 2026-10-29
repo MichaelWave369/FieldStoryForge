@@ -135,6 +135,7 @@ export function parseOutline(text) {
 export function demoStory() {
   const s = (id, title, narration, choices = [], ending = false, artworkNote = '') => ({
     id, title, narration, dialogue: '', image: '', imageAlt: '', artworkNote, ending,
+    artPlan: id==='attic' ? {characterIds:['mara'],locationId:'old-attic',composition:'Wide view down the attic toward a brass door',lighting:'Silver moonlight entering the circular window'} : null,
     choices: choices.map((c, i) => ({ id: id + '-choice-' + i, text: c[0], to: c[1],
       condition: c[2] ? { flag: c[2][0], equals: c[2][1] } : null,
       effect: c[3] ? { flag: c[3][0], value: c[3][1] } : null }))
@@ -142,7 +143,10 @@ export function demoStory() {
   return normalizeStory({
     format: FORMAT, id: 'whispering-door', title: 'The Whispering Door', author: 'FieldStoryForge',
     description: 'One locked attic door. Three endings. Your choices leave traces.',
-    genre: 'Gothic Fantasy', start: 'attic', characters: [{ id: 'mara', name: 'Mara', description: 'A curious archivist returning to her grandmother’s old house.' }],
+    genre: 'Gothic Fantasy', start: 'attic',
+    artStyle: {preset:'Painterly fantasy',palette:'Moonlit violet, tarnished copper, candlelit gold',mood:'Moody storybook watercolor with intricate ink details',avoid:'Modern billboards or neon signage',aspect:'3:4'},
+    characters: [{ id: 'mara', name: 'Mara', description: 'A curious archivist returning to her grandmother’s old house.', appearance:'Adult woman with wavy dark hair, dark eyebrows, and a thoughtful expression',wardrobe:'Indigo wool coat and a tan leather satchel',signature:'Small brass key pendant',continuityNotes:'Keep her dark wavy hair, indigo coat and key pendant consistent between scenes' }],
+    locations: [{id:'old-attic',name:'Grandmother’s attic',description:'An old attic above a rural house, heavy with dust and memories',definingDetails:'Exposed rafters, single circular window, a dark brass door framed by faded floral wallpaper'}],
     scenes: [
       s('attic', 'The Last Stair', 'The attic smells of rain and forgotten paper. At its far end stands a door no one remembers building. A voice whispers your name.', [['Open the door', 'threshold'], ['Search the attic first', 'trunk'], ['Call out to the voice', 'answer']], false, 'A dusty attic, lone brass door, moonlight through rafters.'),
       s('trunk', 'The Cedar Trunk', 'Inside a cedar trunk you find a silver key and a letter in your grandmother’s handwriting: “Not every door leads away.”', [['Take the key and approach the door', 'threshold', null, ['key', 'yes']], ['Leave the key untouched', 'answer']], false, 'Close-up of an antique silver key.'),

@@ -8,8 +8,10 @@ Delivered: four multi-panel layouts with uploaded art and bubble/caption text; p
 
 Not yet delivered: freeform draggable bubbles, drag-and-drop panel grid, custom cover art, persistent cross-session undo/redo, compression/quota management, AI prose-to-choice conversion.
 
-## Rung 3 · Assisted creativity
-Opt-in image and writing providers (local or cloud), character reference system, generated illustration review, prompt/version provenance, explicit approval before any AI changes. Manual mode remains fully functional.
+## Rung 3 · Art Director and continuity (this PR)
+Delivered: character appearance/wardrobe/signature anchors, location bible, story-level palette/style, per-scene/panel shot assignment, deterministic reusable illustration prompts, text-only prompt-pack export, manual candidate preview, explicit approval, and source/prompt provenance. No cloud service is called and no API keys are requested or stored. Old stories and exports remain compatible.
+
+Still planned: *optional*, securely connected AI image providers (local or remote), opt-in writing assistance, automatic/reference-based visual consistency checks, and robust author-approved generation histories. Never promise image generation or model compatibility until tested end-to-end.
 
 ## Rung 4 · Bridges
 Versioned adapters to FieldAtlas reader, PixelForge narrative export, Domistika assets, and PhiOS local packaging; never require other products or unverified network services. Separate ownership of user-generated stories.

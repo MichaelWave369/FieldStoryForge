@@ -72,3 +72,26 @@
   .panel-editor-heading{align-items:flex-start;flex-direction:column}
   .panel-composer-footer{align-items:flex-start;flex-direction:column}
 }
+
+
+/* Rung 3: opt-in offline art direction, shot briefs, and approval */
+.art-director{max-width:1110px;margin:0 auto;}
+.art-director .editor-card{margin-bottom:20px;}
+.art-check-grid{display:flex;flex-wrap:wrap;gap:9px;}
+.art-checkbox{display:flex;align-items:center;gap:7px;padding:10px 12px;color:#edd6da;background:#171c2b;border:1px solid #51495e;border-radius:9px;font-size:12px;cursor:pointer;}
+.art-checkbox input{accent-color:#e5bd83;width:17px;height:17px;}
+.location-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(265px,1fr));gap:14px;}
+.location-card{border:1px solid #4a465c;background:#181b2b;padding:17px;border-radius:12px;}
+.art-brief{background:#171a2a;border:1px solid #5b5170;border-radius:12px;padding:20px;margin:8px 0 3px;}
+.art-brief .aside-title{flex-wrap:wrap;}
+.art-brief-text{font:12px/1.65 ui-monospace,SFMono-Regular,Consolas,monospace;color:#f2e5d9;background:#0f1422;padding:16px;max-height:330px;overflow:auto;border-radius:9px;border:1px solid #4a3e55;white-space:pre-wrap;overflow-wrap:anywhere;}
+.art-review-grid{display:grid;grid-template-columns:minmax(200px,.85fr) minmax(260px,1.15fr);gap:22px;align-items:start;}
+.art-review-preview{min-height:250px;max-height:460px;background:radial-gradient(circle,#756079,#24263e 70%);border:1px solid #655874;border-radius:12px;display:grid;place-items:center;overflow:hidden;}
+.art-review-preview>img{width:100%;height:auto;max-height:455px;object-fit:contain;display:block;}
+.art-review-preview>span{font:90px Georgia;color:#e0c09d;display:flex;flex-direction:column;align-items:center;gap:10px;}
+.art-review-preview small{font:12px system-ui;color:#dacbd9;}
+.art-review-controls{display:flex;flex-direction:column;gap:11px;align-items:flex-start;}
+.art-review-controls .field{align-self:stretch;width:100%;}
+.art-approved{display:flex;flex-direction:column;gap:5px;padding:13px 16px;border:1px solid #4b8076;color:#cde8d9;background:#223736;border-radius:10px;font-size:12px;}
+.art-approved small{color:#b7d0cc;}
+@media(max-width:720px){.art-review-grid{grid-template-columns:1fr}.art-review-preview{max-height:340px}.art-brief{padding:14px}}
