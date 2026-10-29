@@ -60,3 +60,16 @@ Example:
     }
 
 Version changes must be explicit; future readers must migrate older versions rather than guessing silently.
+
+## Rung 2 additive scene and story fields
+
+The format marker remains fieldstory/v1 because new fields are optional. New scene fields:
+
+- layout: cinematic, grid, stack, or split; default cinematic.
+- panels: up to eight objects with id, caption, dialogue, image, imageAlt, and artworkNote. Each image uses the existing data-image allowlist. When panels are absent, the original single-image page renders.
+
+New story field:
+
+- mapPositions: scene ID to {x, y} coordinates, bounded to 5-4800, used only by the editor visual graph.
+
+The manuscript importer recognizes Markdown headings and Chapter N headings; other plain prose becomes conservative linear pages. It does not infer meaningful alternate endings from arbitrary prose. Append mode remaps colliding IDs; Replace requires confirmation.

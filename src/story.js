@@ -1,3 +1,4 @@
+import { PANEL_LAYOUTS, normalizedPanels, normalizedMapPositions } from './rung2.js';
 export const FORMAT = 'fieldstory/v1';
 export const MAX_FILE_CHARS = 8_000_000;
 const cleanText = (value, max = 10000) => String(value ?? '').slice(0, max);
@@ -9,13 +10,13 @@ export function newId(prefix = 'scene') {
   return prefix + '-' + Math.random().toString(36).slice(2, 12);
 }
 export function scene(id = newId()) {
-  return { id, title: 'Untitled scene', narration: '', dialogue: '', image: '', imageAlt: '', artworkNote: '', ending: false, choices: [] };
+  return { id, title: 'Untitled scene', narration: '', dialogue: '', image: '', imageAlt: '', artworkNote: '', ending: false, choices: [], layout: 'cinematic', panels: [] };
 }
 export function createStory() {
   const first = scene('opening');
   first.title = 'Once upon a time';
   first.narration = 'Every adventure begins somewhere.';
-  return { format: FORMAT, id: newId('story'), title: 'Untitled Living Comic', author: '', description: '', genre: 'Fantasy', start: first.id, scenes: [first], characters: [], updatedAt: new Date().toISOString() };
+  return { format: FORMAT, id: newId('story'), title: 'Untitled Living Comic', author: '', description: '', genre: 'Fantasy', start: first.id, scenes: [first], characters: [], mapPositions: {}, updatedAt: new Date().toISOString() };
 }
 export function normalizeStory(source) {
   if (!source || typeof source !== 'object' || Array.isArray(source) || source.format !== FORMAT) throw new Error('Not a supported .fieldstory/v1 file.');
@@ -29,6 +30,7 @@ export function normalizeStory(source) {
       id: item.id, title: cleanText(item.title, 120), narration: cleanText(item.narration, 10000),
       dialogue: cleanText(item.dialogue, 3000), image: safeImage(item.image), imageAlt: cleanText(item.imageAlt, 220),
       artworkNote: cleanText(item.artworkNote, 500), ending: item.ending === true,
+      layout: PANEL_LAYOUTS.includes(item.layout) ? item.layout : 'cinematic', panels: normalizedPanels(item.panels),
       choices: item.choices.map(c => ({
         id: safeId(c.id) ? c.id : newId('choice'),
         text: cleanText(c.text, 160), to: cleanText(c.to, 80),
@@ -47,7 +49,7 @@ export function normalizeStory(source) {
     format: FORMAT, id: safeId(source.id) ? source.id : newId('story'),
     title: cleanText(source.title, 120) || 'Untitled Living Comic', author: cleanText(source.author, 120),
     description: cleanText(source.description, 1000), genre: cleanText(source.genre, 70),
-    start: source.start, scenes, characters, updatedAt: typeof source.updatedAt === 'string' ? cleanText(source.updatedAt, 40) : ''
+    start: source.start, scenes, characters, mapPositions: normalizedMapPositions(source.mapPositions, scenes.map(s=>s.id)), updatedAt: typeof source.updatedAt === 'string' ? cleanText(source.updatedAt, 40) : ''
   };
 }
 export function validateStory(story) {
@@ -59,6 +61,11 @@ export function validateStory(story) {
   }
   if (!ids.has(story.start)) errors.push('The starting scene does not exist.');
   for (const item of story.scenes || []) {
+    const panelIds = new Set();
+    for (const p of item.panels || []) {
+      if (panelIds.has(p.id)) errors.push(item.title + ': duplicate comic panel ID.');
+      panelIds.add(p.id);
+    }
     if (item.ending && item.choices.length) errors.push(item.title + ': ending pages cannot have choices.');
     if (!item.ending && !item.choices.length) warnings.push(item.title + ': dead end without an ending.');
     const choiceIds = new Set();
