@@ -41,20 +41,21 @@ export default function StoryMap({ story, onUpdate, onEdit }) {
     if(event.button!==0)return;
     const node=coords[id],p=svgPoint(event);
     wasDragged.current=false;
-    setDrag({id,x:node.x,y:node.y,offsetX:p.x-node.x,offsetY:p.y-node.y});
+    setDrag({id,x:node.x,y:node.y,startX:node.x,startY:node.y,offsetX:p.x-node.x,offsetY:p.y-node.y});
     svgRef.current?.setPointerCapture(event.pointerId);
   };
   const move=(event)=>{
     if(!drag)return;
     const p=svgPoint(event);
     const x=Math.max(5,Math.min(4750,p.x-drag.offsetX)),y=Math.max(5,Math.min(4750,p.y-drag.offsetY));
-    if(Math.abs(x-generated[drag.id].x)>3||Math.abs(y-generated[drag.id].y)>3) wasDragged.current=true;
+    if(Math.abs(x-drag.startX)>4||Math.abs(y-drag.startY)>4) wasDragged.current=true;
     setDrag({...drag,x,y});
   };
   const stop=(event)=>{
     if(!drag)return;
     const final=drag;
     if(wasDragged.current) onUpdate(s=>({...s,mapPositions:{...s.mapPositions,[final.id]:{x:final.x,y:final.y}}}));
+    else onEdit(final.id);
     setDrag(null);
     try{if(svgRef.current?.hasPointerCapture(event.pointerId))svgRef.current.releasePointerCapture(event.pointerId);}catch{ /* capture may have ended */ }
   };
@@ -80,7 +81,7 @@ export default function StoryMap({ story, onUpdate, onEdit }) {
         }))}
         {all.map(page=>{
           const p=coords[page.id],selected=origin===page.id;
-          return <g key={page.id} role="button" tabIndex={0} aria-label={'Scene '+page.title+(page.ending?', ending':'')+', click to '+(connecting?'connect':'edit')} onPointerDown={e=>startDrag(e,page.id)} onClick={()=>handleNode(page.id)} onKeyDown={e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();handleNode(page.id);}}} className={'map-node'+(selected?' map-node-selected':'')}>
+          return <g key={page.id} role="button" tabIndex={0} aria-label={'Scene '+page.title+(page.ending?', ending':'')+', click to '+(connecting?'connect':'edit')} onPointerDown={e=>startDrag(e,page.id)} onClick={()=>{if(connecting)handleNode(page.id);}} onKeyDown={e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();handleNode(page.id);}}} className={'map-node'+(selected?' map-node-selected':'')}>
             <rect x={p.x} y={p.y} width={WIDTH} height={HEIGHT} rx="13" fill={selected?'#655172':page.ending?'#415b55':page.id===story.start?'#745b4c':'#30304b'} stroke={selected?'#f4d39b':'#bba2a4'} strokeWidth={selected?3:1.5}/>
             <text x={p.x+13} y={p.y+19} fontSize="10" fill="#ead2a6">{page.id===story.start?'⌂ START':page.ending?'✦ ENDING':(page.choices?.length||0)+' CHOICES'}</text>
             <text x={p.x+13} y={p.y+43} fontSize="13" fill="#fff4ea" fontWeight="700">{page.title.length>21?page.title.slice(0,20)+'…':page.title}</text>
