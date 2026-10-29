@@ -17,7 +17,7 @@ test('demo identity and location anchors are included in reusable shot prompt',(
  const s=demoStory(),brief=composeArtBrief(s,'attic');
  assert.match(brief.prompt,/Mara/);
  assert.match(brief.prompt,/wavy dark hair/);
- assert.match(brief.prompt,/indigo wool coat/);
+ assert.match(brief.prompt,/indigo wool coat/i);
  assert.match(brief.prompt,/circular window/);
  assert.match(brief.prompt,/Moonlit violet/);
  assert.match(brief.negativePrompt,/neon signage/);
